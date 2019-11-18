@@ -13,6 +13,40 @@
 -- HINT: find a way to join the order_details, products, and customers tables
 
 
+WITH price_per_order AS
+(SELECT
+	contactname
+	,country
+	,od.unitprice * od.quantity AS price_per_product
+
+FROM 
+	customers AS cust 
+JOIN 
+	orders AS o
+	ON cust.customerid = o.customerid
+JOIN orderdetails AS od
+	ON o.orderid = od.orderid
+
+GROUP BY
+	1, 2, 3
+
+ORDER BY 
+	1)
+
+SELECT
+	contactname
+	,SUM(price_per_product) OVER (PARTITION BY country)
+
+FROM
+	price_per_order
+
+GROUP BY
+	1,2
+
+ORDER BY
+	1
+
+
 -- Return the same list as before, but with only the top 3 customers in each country.
 
 
