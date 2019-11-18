@@ -49,7 +49,42 @@ GROUP BY
 
 -- Return the same list as before, but with only the top 3 customers in each country.
 
+WITH price_per_order AS
+(SELECT
+	contactname
+	,country
+	,SUM(od.unitprice * od.quantity) AS price_per_product
 
+FROM 
+	customers AS cust 
+JOIN 
+	orders AS o
+	ON cust.customerid = o.customerid
+JOIN orderdetails AS od
+	ON o.orderid = od.orderid
 
+GROUP BY
+	1, 2
 
+ORDER BY 
+	1)
+
+SELECT *
+
+FROM
+	(SELECT
+	contactname
+	,country
+	,SUM(price_per_product)
+	,RANK() OVER (PARTITION BY country ORDER BY price_per_product DESC)
+	,ROW_NUMBER() OVER (PARTITION BY country) AS top_3
+
+FROM
+	price_per_order
+
+GROUP BY
+	2, 1, price_per_product) as pls_work
+
+WHERE
+	top_3 < 4
 
