@@ -83,7 +83,7 @@ FROM
 	price_per_order
 
 GROUP BY
-	2, 1, price_per_product) as pls_work
+	2, 1, price_per_product) as top3_list
 
 WHERE
 	top_3 < 4
