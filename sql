@@ -17,7 +17,7 @@ WITH price_per_order AS
 (SELECT
 	contactname
 	,country
-	,od.unitprice * od.quantity AS price_per_product
+	,SUM(od.unitprice * od.quantity) AS price_per_product
 
 FROM 
 	customers AS cust 
@@ -28,23 +28,23 @@ JOIN orderdetails AS od
 	ON o.orderid = od.orderid
 
 GROUP BY
-	1, 2, 3
+	1, 2
 
 ORDER BY 
 	1)
 
 SELECT
 	contactname
-	,SUM(price_per_product) OVER (PARTITION BY country)
+	,country
+	,SUM(price_per_product)
+	,RANK() OVER (PARTITION BY country ORDER BY price_per_product DESC)
 
 FROM
 	price_per_order
 
 GROUP BY
-	1,2
+	2, 1, price_per_product
 
-ORDER BY
-	1
 
 
 -- Return the same list as before, but with only the top 3 customers in each country.
